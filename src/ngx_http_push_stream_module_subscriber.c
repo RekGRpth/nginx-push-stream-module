@@ -582,7 +582,7 @@ ngx_http_push_stream_get_worker_subscriber_channel_sentinel_locked(ngx_slab_pool
         }
     }
 
-    if ((worker_sentinel = ngx_slab_alloc(shpool, sizeof(ngx_http_push_stream_pid_queue_t))) == NULL) {
+    if ((worker_sentinel = ngx_slab_calloc(shpool, sizeof(ngx_http_push_stream_pid_queue_t))) == NULL) {
         ngx_log_error(NGX_LOG_ERR, log, 0, "push stream module: unable to allocate worker subscriber queue marker in shared memory");
         return NULL;
     }

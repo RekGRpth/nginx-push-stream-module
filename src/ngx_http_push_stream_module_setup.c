@@ -1017,7 +1017,7 @@ ngx_http_push_stream_init_global_shm_zone(ngx_shm_zone_t *shm_zone, void *data)
         return NGX_OK;
     }
 
-    if ((d = (ngx_http_push_stream_global_shm_data_t *) ngx_slab_alloc(shpool, sizeof(*d))) == NULL) { //shm_data plus an array.
+    if ((d = (ngx_http_push_stream_global_shm_data_t *) ngx_slab_calloc(shpool, sizeof(*d))) == NULL) { //shm_data plus an array.
         return NGX_ERROR;
     }
     shm_zone->data = d;
@@ -1057,7 +1057,7 @@ ngx_http_push_stream_init_shm_zone(ngx_shm_zone_t *shm_zone, void *data)
 
     ngx_rbtree_node_t                   *sentinel;
 
-    if ((d = (ngx_http_push_stream_shm_data_t *) ngx_slab_alloc(mcf->shpool, sizeof(*d))) == NULL) { //shm_data plus an array.
+    if ((d = (ngx_http_push_stream_shm_data_t *) ngx_slab_calloc(mcf->shpool, sizeof(*d))) == NULL) { //shm_data plus an array.
         return NGX_ERROR;
     }
     d->mcf = mcf;
@@ -1088,7 +1088,7 @@ ngx_http_push_stream_init_shm_zone(ngx_shm_zone_t *shm_zone, void *data)
     d->events_channel = NULL;
 
     // initialize rbtree
-    if ((sentinel = ngx_slab_alloc(mcf->shpool, sizeof(*sentinel))) == NULL) {
+    if ((sentinel = ngx_slab_calloc(mcf->shpool, sizeof(*sentinel))) == NULL) {
         return NGX_ERROR;
     }
     ngx_rbtree_init(&d->tree, sentinel, ngx_http_push_stream_rbtree_insert);

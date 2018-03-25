@@ -442,7 +442,7 @@ ngx_http_push_stream_send_worker_message(ngx_http_push_stream_channel_t *channel
     ngx_http_push_stream_worker_msg_t       *newmessage;
 
     ngx_shmtx_lock(&shpool->mutex);
-    if ((newmessage = ngx_slab_alloc_locked(shpool, sizeof(ngx_http_push_stream_worker_msg_t))) == NULL) {
+    if ((newmessage = ngx_slab_calloc_locked(shpool, sizeof(ngx_http_push_stream_worker_msg_t))) == NULL) {
         ngx_shmtx_unlock(&shpool->mutex);
         ngx_log_error(NGX_LOG_ERR, log, 0, "push stream module: unable to allocate worker message, pid: %P, slot: %d", pid, worker_slot);
         return NGX_ERROR;

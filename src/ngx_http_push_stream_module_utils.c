@@ -240,7 +240,7 @@ ngx_uint_t
 ngx_http_push_stream_apply_text_template(ngx_str_t **dst_value, ngx_str_t **dst_message, ngx_str_t *text, const ngx_str_t *template, const ngx_str_t *token, ngx_slab_pool_t *shpool, ngx_pool_t *temp_pool)
 {
     if (text != NULL) {
-        if ((*dst_value = ngx_slab_alloc(shpool, sizeof(ngx_str_t) + text->len + 1)) == NULL) {
+        if ((*dst_value = ngx_slab_calloc(shpool, sizeof(ngx_str_t) + text->len + 1)) == NULL) {
             return NGX_ERROR;
         }
 
@@ -254,7 +254,7 @@ ngx_http_push_stream_apply_text_template(ngx_str_t **dst_value, ngx_str_t **dst_
             return NGX_ERROR;
         }
 
-        if (((*dst_message) = ngx_slab_alloc(shpool, sizeof(ngx_str_t) + aux->len)) == NULL) {
+        if (((*dst_message) = ngx_slab_calloc(shpool, sizeof(ngx_str_t) + aux->len)) == NULL) {
             return NGX_ERROR;
         }
 
@@ -274,7 +274,7 @@ ngx_http_push_stream_convert_char_to_msg_on_shared(ngx_http_push_stream_main_con
     ngx_http_push_stream_msg_t                *msg;
     int                                        i = 0;
 
-    if ((msg = ngx_slab_alloc(shpool, sizeof(ngx_http_push_stream_msg_t))) == NULL) {
+    if ((msg = ngx_slab_calloc(shpool, sizeof(ngx_http_push_stream_msg_t))) == NULL) {
         return NULL;
     }
 
@@ -292,7 +292,7 @@ ngx_http_push_stream_convert_char_to_msg_on_shared(ngx_http_push_stream_main_con
     msg->qtd_templates = mcf->qtd_templates;
     ngx_queue_init(&msg->queue);
 
-    if ((msg->raw.data = ngx_slab_alloc(shpool, len + 1)) == NULL) {
+    if ((msg->raw.data = ngx_slab_calloc(shpool, len + 1)) == NULL) {
         ngx_http_push_stream_free_message_memory(shpool, msg);
         return NULL;
     }
@@ -313,7 +313,7 @@ ngx_http_push_stream_convert_char_to_msg_on_shared(ngx_http_push_stream_main_con
         return NULL;
     }
 
-    if ((msg->formatted_messages = ngx_slab_alloc(shpool, sizeof(ngx_str_t) * msg->qtd_templates)) == NULL) {
+    if ((msg->formatted_messages = ngx_slab_calloc(shpool, sizeof(ngx_str_t) * msg->qtd_templates)) == NULL) {
         ngx_http_push_stream_free_message_memory(shpool, msg);
         return NULL;
     }
@@ -357,7 +357,7 @@ ngx_http_push_stream_convert_char_to_msg_on_shared(ngx_http_push_stream_main_con
         }
 
         ngx_str_t *formmated = (msg->formatted_messages + i);
-        if ((text == NULL) || ((formmated->data = ngx_slab_alloc(shpool, text->len)) == NULL)) {
+        if ((text == NULL) || ((formmated->data = ngx_slab_calloc(shpool, text->len)) == NULL)) {
             ngx_http_push_stream_free_message_memory(shpool, msg);
             return NULL;
         }
