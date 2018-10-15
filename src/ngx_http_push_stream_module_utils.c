@@ -95,7 +95,7 @@ ngx_http_push_stream_delete_channels_data(ngx_http_push_stream_shm_data_t *data)
 
         ngx_shmtx_lock(channel->mutex);
         // remove subscribers if any
-        if (channel->subscribers > 0) {
+//        if (channel->subscribers > 0) {
             // find the current worker
             for (cur_worker = ngx_queue_head(&channel->workers_with_subscribers); cur_worker != ngx_queue_sentinel(&channel->workers_with_subscribers); cur_worker = ngx_queue_next(cur_worker)) {
                 worker = ngx_queue_data(cur_worker, ngx_http_push_stream_pid_queue_t, queue);
@@ -133,7 +133,7 @@ ngx_http_push_stream_delete_channels_data(ngx_http_push_stream_shm_data_t *data)
                     }
                 }
             }
-        }
+//        }
         ngx_shmtx_unlock(channel->mutex);
     }
     ngx_shmtx_unlock(&data->channels_to_delete_mutex);
@@ -1170,21 +1170,35 @@ ngx_http_push_stream_free_memory_of_expired_messages_and_channels_data(ngx_http_
 {
     ngx_slab_pool_t                        *shpool = data->shpool;
     ngx_http_push_stream_msg_t             *message;
-    ngx_queue_t                            *cur;
+    ngx_queue_t                            *q;
 
     ngx_shmtx_lock(&data->messages_trash_mutex);
-    while (!ngx_queue_empty(&data->messages_trash)) {
-        cur = ngx_queue_head(&data->messages_trash);
-        message = ngx_queue_data(cur, ngx_http_push_stream_msg_t, queue);
 
-        if (force || ((message->workers_ref_count <= 0) && (ngx_time() > message->expires))) {
-            ngx_queue_remove(&message->queue);
-            ngx_http_push_stream_free_message_memory(shpool, message);
-            NGX_HTTP_PUSH_STREAM_DECREMENT_COUNTER(data->messages_in_trash);
-        } else {
-            break;
-        }
+    for (q = ngx_queue_head(&data->messages_trash); q != ngx_queue_sentinel(&data->messages_trash);) {
+		message = ngx_queue_data(q, ngx_http_push_stream_msg_t, queue);
+		q = ngx_queue_next(q);
+
+		if (force || ((message->workers_ref_count <= 0) && (ngx_time() > message->expires))) {
+			ngx_queue_remove(&message->queue);
+			ngx_http_push_stream_free_message_memory(shpool, message);
+			NGX_HTTP_PUSH_STREAM_DECREMENT_COUNTER(data->messages_in_trash);
+		} else if (ngx_time() > message->expires) {
+			ngx_log_error(NGX_LOG_ERR, ngx_cycle->log, 0, "push stream module: Message expired on trash but still with reference (id: %d, ref count: %d)", message->id, message->workers_ref_count);
+		}
     }
+
+//    while (!ngx_queue_empty(&data->messages_trash)) {
+//        cur = ngx_queue_head(&data->messages_trash);
+//        message = ngx_queue_data(cur, ngx_http_push_stream_msg_t, queue);
+//
+//        if (force || ((message->workers_ref_count <= 0) && (ngx_time() > message->expires))) {
+//            ngx_queue_remove(&message->queue);
+//            ngx_http_push_stream_free_message_memory(shpool, message);
+//            NGX_HTTP_PUSH_STREAM_DECREMENT_COUNTER(data->messages_in_trash);
+//        } else {
+//            break;
+//        }
+//    }
     ngx_shmtx_unlock(&data->messages_trash_mutex);
     ngx_http_push_stream_free_memory_of_expired_channels(data, shpool, force);
 }
